@@ -5,6 +5,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    event: {},
     events: [],
     eventsTotal: 0,
     user: { id: 'abc123', name: 'Orhan Özkerçin' },
@@ -28,6 +29,9 @@ export default new Vuex.Store({
     ADD_EVENT(state, event) {
       state.events.push(event);
     },
+    SET_EVENT(state, event) {
+      state.event = event;
+    },
     SET_EVENTS(state, events) {
       state.events = events;
     },
@@ -48,17 +52,19 @@ export default new Vuex.Store({
         })
         .catch((err) => console.error(err));
     },
+    fetchEvent({ commit, getters }, id) {
+      let event = getters.getEventById(id);
+      if (event) {
+        commit('SET_EVENT', event);
+      } else {
+        EventService.getEvent(id).then((res) => commit('SET_EVENT', res.data));
+      }
+    },
   },
   modules: {},
   getters: {
-    catLength: (state) => {
-      return state.categories.length;
-    },
-    doneTodos: (state) => {
-      return state.todos.filter((todo) => todo.done);
-    },
-    activeTodosCount: (state, getters) => {
-      return state.todos.length - getters.doneTodos.length;
+    getEventById: (state) => (id) => {
+      return state.events.find((event) => event.id === id);
     },
   },
 });
